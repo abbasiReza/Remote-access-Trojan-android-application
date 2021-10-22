@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "216347342171",
+    "firebase_url": "https://testrat-d60fe.firebaseio.com",
+    "project_id": "testrat-d60fe",
+    "storage_bucket": "testrat-d60fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216347342171:android:220fa1d3352625b02c167e",
+        "android_client_info": {
+          "package_name": "com.psiphon3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216347342171-rss6hdlcvcob171fjs2e1u289aaglmvk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsnWXFo8UWBOvrTSbLDq3X5Gc9249_PTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216347342171-rss6hdlcvcob171fjs2e1u289aaglmvk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
